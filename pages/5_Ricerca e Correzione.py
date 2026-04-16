@@ -55,18 +55,50 @@ if 'df' in st.session_state:
     # --- DISPLAY ---
     st.metric("Risultati trovati", len(df_filtered))
     
-    # Mostriamo la tabella con possibilità di ordinamento
-    st.dataframe(df_filtered.sort_values(by='Data', ascending=False), use_container_width=True)
-
-    # --- ESPORTAZIONE ---
-    st.divider()
-    csv_search = df_filtered.to_csv(index=False).encode('utf-8')
-    st.download_button(
-        label="📥 Scarica i risultati filtrati in CSV",
-        data=csv_search,
-        file_name="ricerca_patrimonio.csv",
-        mime="text/csv",
+    st.write("✏️ **Modifica i dati direttamente nella tabella qui sotto:**")
+    
+    # Prepariamo i dati da mostrare mantenendo l'indice originale
+    df_da_modificare = df_filtered.sort_values(by='Data', ascending=False)
+    
+    # Editor interattivo
+    df_modificato = st.data_editor(
+        df_da_modificare, 
+        use_container_width=True,
+        num_rows="dynamic" 
     )
+
+    st.divider()
+    
+    # Mettiamo i due bottoni (Salvataggio e Download) vicini usando le colonne
+    col_btn1, col_btn2 = st.columns(2)
+
+    with col_btn1:
+        # --- SALVATAGGIO IN MEMORIA (SESSION STATE) ---
+        if st.button("💾 Salva modifiche nell'App"):
+            # 1. Prendiamo il dataframe originale completo
+            df_originale = st.session_state['df'].copy()
+            
+            # 2. Rimuoviamo dal dataframe originale le righe che avevamo filtrato
+            df_senza_filtrati = df_originale.drop(index=df_filtered.index, errors='ignore')
+            
+            # 3. Uniamo il resto dei dati intatti con le tue nuove righe modificate
+            df_aggiornato = pd.concat([df_senza_filtrati, df_modificato])
+            
+            # 4. Ristabiliamo l'ordine temporale generale e salviamo nello stato globale
+            st.session_state['df'] = df_aggiornato.sort_values(by='Data', ascending=False)
+            
+            st.success("✅ Modifiche salvate con successo! I grafici in tutte le pagine sono stati aggiornati.")
+            st.rerun() # Aggiorna la pagina all'istante per mostrare i dati nuovi
+
+    with col_btn2:
+        # --- ESPORTAZIONE ---
+        csv_search = df_modificato.to_csv(index=False).encode('utf-8')
+        st.download_button(
+            label="📥 Scarica solo questa tabella in CSV",
+            data=csv_search,
+            file_name="ricerca_patrimonio_corretto.csv",
+            mime="text/csv",
+        )
 
 else:
     st.error("Carica i dati nella Home!")
