@@ -52,10 +52,9 @@
             "Varie": 150.0
         },
         "saldi iniziali": {
-            "Banca1": 2500.0,
-            "Banca2": 1200.0,
-            "Banca3": 500.0,
-            "Contanti": 50.0,
+            "Banca_Principale": 2500.0,
+            "Satispay": 1200.0,
+            "Risparmi": 500.0,
             "Investimento1": 1000,
             "Investimento2": 2000
         },
@@ -82,10 +81,9 @@
             "Generale": 500.0
         },
         "saldi iniziali": {
-            "Banca1": 2500.0,
-            "Banca2": 1200.0,
-            "Banca3": 500.0,
-            "Contanti": 50.0,
+            "Banca_Principale": 2500.0,
+            "Satispay": 1200.0,
+            "Risparmi": 500.0,
             "Investimento1": 1000,
             "Investimento2": 2000
         },

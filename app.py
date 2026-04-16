@@ -1,11 +1,11 @@
 import streamlit as st
 import pandas as pd
 
-# Funzione per caricare i dati (usiamo la cache per la velocità)
+COLONNE_RICHIESTE = ["Data", "Posizione", "Valore", "Categoria", "Sottocategoria", "Note", "Conto Uscita", "Conto Entrata"]
+
 @st.cache_data
 def load_data(uploaded_file):
     df = pd.read_csv(uploaded_file)
-    # Mettere qui se c'è da fare una pulizia iniziale dei dati
     return df
 
 st.set_page_config(
@@ -14,7 +14,6 @@ st.set_page_config(
     layout="wide"
 )
 
-# 1. Inizializzazione Sessione
 if 'df' not in st.session_state:
     st.session_state['df'] = None
 if 'utente' not in st.session_state:
@@ -25,10 +24,15 @@ st.title("OpenCash - NetWorth Tracker")
 uploaded_file = st.file_uploader("Carica il tuo file CSV", type="csv")
 
 if uploaded_file is not None:
-    #1. Carichiamo i Dati
-    st.session_state['df'] = pd.read_csv(uploaded_file)
+    df_temp = pd.read_csv(uploaded_file)
+    colonne_mancanti = [c for c in COLONNE_RICHIESTE if c not in df_temp.columns]
+    if colonne_mancanti:
+        st.error(f"Il file CSV non contiene le colonne richieste: **{', '.join(colonne_mancanti)}**")
+        st.info(f"Colonne attese: {', '.join(COLONNE_RICHIESTE)}")
+        st.stop()
 
-    #2. Logica di riconoscimento dal Nome del file
+    st.session_state['df'] = df_temp
+
     nome_file = uploaded_file.name.lower()
 
     if "matteo" in nome_file:

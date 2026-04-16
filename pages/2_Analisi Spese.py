@@ -22,7 +22,7 @@ if 'df' in st.session_state:
     
     # Filtriamo solo le uscite
     df_uscite = df[(df['Conto Uscita'] != '-') & (df['Conto Entrata'] == '-')].copy()
-    df_uscite['Valore'] = pd.to_numeric(df_uscite['Valore'])
+    df_uscite['Valore'] = pd.to_numeric(df_uscite['Valore'], errors='coerce').fillna(0)
     df_uscite['Data'] = pd.to_datetime(df_uscite['Data'], utc=True)
 
     # --- SEZIONE FILTRO TEMPORALE ---

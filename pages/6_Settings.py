@@ -17,7 +17,7 @@ def load_config():
     if os.path.exists(FILE_CONFIG):
         with open(FILE_CONFIG, 'r') as f:
             return json.load(f)
-        return {}
+    return {}
     
 def save_config(aggiornati):
     with open(FILE_CONFIG, 'w') as f:

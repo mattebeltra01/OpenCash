@@ -24,10 +24,12 @@ st.title(f"📊 Mappa delle Spese di {st.session_state['utente']}")
 if 'df' in st.session_state:
     df = st.session_state['df'].copy()
     
-    # 1. Pulizia coordinate: separiamo la stringa "lat lon" in due colonne numeriche
-    # La tua colonna Posizione è tipo: "44.9104 10.6516"
-    df[['lat', 'lon']] = df['Posizione'].str.split(' ', expand=True).astype(float)
-    df['Valore'] = pd.to_numeric(df['Valore'])
+    df['Valore'] = pd.to_numeric(df['Valore'], errors='coerce').fillna(0)
+
+    split_pos = df['Posizione'].str.split(' ', expand=True)
+    df['lat'] = pd.to_numeric(split_pos[0], errors='coerce')
+    df['lon'] = pd.to_numeric(split_pos[1], errors='coerce')
+    df = df.dropna(subset=['lat', 'lon'])
 
     st.title("📍 Mappa Geografica delle Spese")
     st.write("Visualizza dove effettui i tuoi acquisti più frequenti.")
