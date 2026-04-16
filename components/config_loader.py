@@ -40,3 +40,7 @@ def get_extra(utente):
 def get_ricorrenti(utente):
     conf = load_user_config(utente)
     return conf.get("transazioni_ricorrenti", [])
+
+def get_saldi_odierni(utente):
+    conf = load_user_config(utente)
+    return conf.get("saldi_odierni", {})

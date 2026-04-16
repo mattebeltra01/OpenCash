@@ -35,11 +35,12 @@ if utente_attivo not in config:
     config[utente_attivo] = {
         "conti": ["Conto Principale"],
         "saldi iniziali": {"Conto Principale": 0.0},
+        "saldi_odierni": {},
         "budget": {"Generale": 500.0},
         "extra": {
             "obiettivo_risparmio": 100.0,
             "soglia_allerta_budget": 0.85,
-            "coordinate_home": [44.9104, 10.6516], # Default
+            "coordinate_home": [44.9104, 10.6516],
             "valuta": "€",
             "colore_tema": "#1f77b4"
         }
@@ -53,7 +54,7 @@ st.title(f"⚙️ Impostazioni Profilo: {utente_attivo}")
 st.write("Modifica i tuoi parametri. Le modifiche avranno effetto solo sul tuo profilo.")
 
 # Usiamo i tab per tenere la pagina ordinata
-tab_conti, tab_budget, tab_extra, tab_ricorrenti = st.tabs(["🏦 Conti & Saldi", "🎯 Budget Mensile", "🛠️ Preferenze Extra", "🔄 Ricorrenti"])
+tab_conti, tab_saldi_odierni, tab_budget, tab_extra, tab_ricorrenti = st.tabs(["🏦 Conti & Saldi", "📅 Saldi Odierni", "🎯 Budget Mensile", "🛠️ Preferenze Extra", "🔄 Ricorrenti"])
 
 # TAB 1
 with tab_conti:
@@ -74,7 +75,87 @@ with tab_conti:
     # Questo è l'editor interattivo! num_rows="dynamic" permette di aggiungere righe in basso.
     edited_conti = st.data_editor(df_conti, num_rows="dynamic", use_container_width=True, key="edit_conti")
 
-# TAB 2
+# TAB 2 - Saldi Odierni
+with tab_saldi_odierni:
+    st.subheader("Saldi Odierni dei Conti")
+    st.write("Inserisci il saldo attuale di ogni conto. L'app calcolerà automaticamente i saldi iniziali sottraendo i movimenti registrati nel CSV. Così se perdi un valore puoi sempre recuperarlo!")
+
+    dict_saldi_odierni = user_conf.get("saldi_odierni", {})
+    lista_conti_correnti = user_conf.get("conti", [])
+
+    dati_saldi_odierni = []
+    for c in lista_conti_correnti:
+        dati_saldi_odierni.append({
+            "Nome Conto": c,
+            "Saldo Odierno": dict_saldi_odierni.get(c, 0.0)
+        })
+
+    df_saldi_odierni = pd.DataFrame(dati_saldi_odierni)
+    if df_saldi_odierni.empty:
+        df_saldi_odierni = pd.DataFrame(columns=["Nome Conto", "Saldo Odierno"])
+
+    edited_saldi_odierni = st.data_editor(
+        df_saldi_odierni,
+        num_rows="fixed",
+        use_container_width=True,
+        key="edit_saldi_odierni"
+    )
+
+    st.divider()
+    st.subheader("Calcolo Automatico Saldi Iniziali")
+    st.write("Inserisci i saldi odierni sopra, poi premi il bottone per ricalcolare i saldi iniziali in base alle transazioni del CSV caricato.")
+
+    if st.button("🔄 Calcola Saldi Iniziali dai Saldi Odierni", type="primary", use_container_width=True):
+        if 'df' not in st.session_state or st.session_state['df'] is None:
+            st.error("⚠️ Nessun file CSV caricato! Carica prima il file dalla Home.")
+        else:
+            df_calc = st.session_state['df'].copy()
+            df_calc['Valore'] = pd.to_numeric(df_calc['Valore'], errors='coerce').fillna(0)
+
+            variazioni = {}
+            for _, row in df_calc.iterrows():
+                uscita = str(row.get('Conto Uscita', '-')).strip()
+                entrata = str(row.get('Conto Entrata', '-')).strip()
+                valore = float(row['Valore'])
+                if uscita != '-':
+                    variazioni[uscita] = variazioni.get(uscita, 0) - valore
+                if entrata != '-':
+                    variazioni[entrata] = variazioni.get(entrata, 0) + valore
+
+            nuovi_saldi_iniziali = {}
+            nuovi_saldi_odierni = {}
+            risultati = []
+            for index, row in edited_saldi_odierni.iterrows():
+                conto = str(row["Nome Conto"]).strip()
+                if conto and conto != "nan":
+                    try:
+                        saldo_od = float(row["Saldo Odierno"])
+                    except (ValueError, TypeError):
+                        saldo_od = 0.0
+                    nuovi_saldi_odierni[conto] = saldo_od
+                    variazione = variazioni.get(conto, 0)
+                    saldo_iniz = round(saldo_od - variazione, 2)
+                    nuovi_saldi_iniziali[conto] = saldo_iniz
+                    risultati.append({
+                        "Conto": conto,
+                        "Saldo Odierno": saldo_od,
+                        "Variazione Totale": variazione,
+                        "Saldo Iniziale Calcolato": saldo_iniz
+                    })
+
+            if risultati:
+                df_risultati = pd.DataFrame(risultati)
+                st.dataframe(df_risultati, use_container_width=True, hide_index=True)
+
+                user_conf["saldi iniziali"] = nuovi_saldi_iniziali
+                user_conf["saldi_odierni"] = nuovi_saldi_odierni
+                config[utente_attivo] = user_conf
+                save_config(config)
+                st.success("✅ Saldi iniziali ricalcolati e salvati con successo!")
+            else:
+                st.warning("Nessun conto trovato per il calcolo.")
+
+# TAB 3 - Budget
 with tab_budget:
     st.subheader("Limiti di Spesa per Categoria")
     st.write("Imposta quanto vuoi spendere al massimo per ogni categoria. Aggiungi nuove categorie in fondo.")
@@ -88,7 +169,7 @@ with tab_budget:
         
     edited_budget = st.data_editor(df_budget, num_rows="dynamic", use_container_width=True, key="edit_budget")
 
-# TAB 3
+# TAB 4 - Extra
 with tab_extra:
     st.subheader("Obiettivi e Personalizzazione")
     extra_conf = user_conf.get("extra", {})
@@ -108,7 +189,7 @@ with tab_extra:
         lat = st.number_input("Latitudine Casa (Per la Mappa)", value=float(coords[0]), format="%.5f")
         lon = st.number_input("Longitudine Casa (Per la Mappa)", value=float(coords[1]), format="%.5f")
 
-# TAB 4 - Transazioni Ricorrenti
+# TAB 5 - Ricorrenti
 with tab_ricorrenti:
     st.subheader("Transazioni Ricorrenti")
     st.write("Definisci entrate e uscite che si ripetono ogni mese. Saranno mostrate come promemoria nella Dashboard.")
@@ -139,11 +220,20 @@ if st.button("💾 Salva Impostazioni nel Profilo", type="primary", use_containe
         conto = str(row["Nome Conto"]).strip()
         if conto != "nan" and conto != "":
             nuovi_conti.append(conto)
-            # Gestiamo errori di conversione se l'utente lascia vuoto
             try: 
                 nuovi_saldi[conto] = float(row["Saldo Iniziale"])
             except ValueError:
                 nuovi_saldi[conto] = 0.0
+
+    # 1b. Recuperiamo i Saldi Odierni
+    nuovi_saldi_odierni = {}
+    for index, row in edited_saldi_odierni.iterrows():
+        conto = str(row["Nome Conto"]).strip()
+        if conto and conto != "nan":
+            try:
+                nuovi_saldi_odierni[conto] = float(row["Saldo Odierno"])
+            except (ValueError, TypeError):
+                nuovi_saldi_odierni[conto] = 0.0
 
     # 2. Recuperiamo il Budget pulito
     nuovo_budget = {}
@@ -182,6 +272,7 @@ if st.button("💾 Salva Impostazioni nel Profilo", type="primary", use_containe
     # 3. Aggiorniamo il dizionario dell'utente
     user_conf["conti"] = nuovi_conti
     user_conf["saldi iniziali"] = nuovi_saldi
+    user_conf["saldi_odierni"] = nuovi_saldi_odierni
     user_conf["budget"] = nuovo_budget
     user_conf["extra"] = {
         "obiettivo_risparmio": obiettivo,

@@ -16,6 +16,7 @@
             "Investimento1": 1000,
             "Investimento2": 2000
         },
+        "saldi_odierni": {},
         "budget": {
             "Casa": 800.0,
             "Cibo": 400.0,
@@ -80,6 +81,7 @@
             "Investimento1": 1000,
             "Investimento2": 2000
         },
+        "saldi_odierni": {},
         "extra": {
             "obiettivo_risparmio": 600.0,
             "soglia_allerta_budget": 0.8,
@@ -109,6 +111,7 @@
             "Investimento1": 1000,
             "Investimento2": 2000
         },
+        "saldi_odierni": {},
         "extra": {
             "obiettivo_risparmio": 0.0,
             "soglia_allerta_budget": 0.9,
