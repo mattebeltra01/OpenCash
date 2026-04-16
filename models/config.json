@@ -75,19 +75,19 @@
             "Varie": 150.0
         },
         "saldi iniziali": {
-            "Banca_Principale": 2500.0,
-            "Satispay": 1200.0,
-            "Risparmi": 500.0,
-            "Investimento1": 1000,
-            "Investimento2": 2000
+            "Banca_Principale": 0,
+            "Satispay": 0,
+            "Risparmi": 0.0,
+            "Investimento1": 0,
+            "Investimento2": 0
         },
         "saldi_odierni": {},
         "extra": {
-            "obiettivo_risparmio": 600.0,
+            "obiettivo_risparmio": 800.0,
             "soglia_allerta_budget": 0.8,
             "coordinate_home": [
-                45.4642,
-                9.19
+                0,
+                0
             ],
             "valuta": "\u20ac",
             "colore_tema": "#D81B60"
