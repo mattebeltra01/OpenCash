@@ -1,7 +1,16 @@
 import streamlit as st
 import pandas as pd
 
+# --- CODICE DI SICUREZZA ---
+# Se l'utente apre direttamente questa pagina, inizializziamo 'utente' 
+# per evitare il KeyError
+if 'utente' not in st.session_state:
+    st.session_state['utente'] = "Matteo" 
+# ---------------------------
+
 st.set_page_config(page_title="Ricerca Transazioni", layout="wide")
+
+st.title(f"📊 Ricerca e Correzione di {st.session_state['utente']}")
 
 if 'df' in st.session_state:
     df = st.session_state['df'].copy()

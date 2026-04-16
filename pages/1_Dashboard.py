@@ -2,9 +2,16 @@ import streamlit as st
 import pandas as pd
 import plotly.express as px
 
+# --- CODICE DI SICUREZZA ---
+# Se l'utente apre direttamente questa pagina, inizializziamo 'utente' 
+# per evitare il KeyError
+if 'utente' not in st.session_state:
+    st.session_state['utente'] = "Matteo" 
+# ---------------------------
+
 st.set_page_config(page_title="Dashboard Patrimonio", layout="wide")
 
-st.title("📊 Dashboard")
+st.title(f"📊 Dashboard di {st.session_state['utente']}")
 
 if 'df' in st.session_state:
     # Recuperiamo il dataframe e assicuriamoci che i tipi siano corretti

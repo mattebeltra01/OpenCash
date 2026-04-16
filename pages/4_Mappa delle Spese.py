@@ -2,7 +2,16 @@ import streamlit as st
 import pandas as pd
 import plotly.express as px
 
+# --- CODICE DI SICUREZZA ---
+# Se l'utente apre direttamente questa pagina, inizializziamo 'utente' 
+# per evitare il KeyError
+if 'utente' not in st.session_state:
+    st.session_state['utente'] = "Matteo" 
+# ---------------------------
+
 st.set_page_config(page_title="Mappa Spese", layout="wide")
+
+st.title(f"📊 Mappa delle Spese di {st.session_state['utente']}")
 
 if 'df' in st.session_state:
     df = st.session_state['df'].copy()
