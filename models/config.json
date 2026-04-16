@@ -33,7 +33,29 @@
             ],
             "valuta": "\u20ac",
             "colore_tema": "#1E88E5"
-        }
+        },
+        "transazioni_ricorrenti": [
+            {
+                "note": "Stipendio",
+                "valore": 1800.0,
+                "categoria": "Stipendio",
+                "sottocategoria": "-",
+                "conto_uscita": "-",
+                "conto_entrata": "Banca1",
+                "giorno_mese": 27,
+                "frequenza": "mensile"
+            },
+            {
+                "note": "Affitto",
+                "valore": 650.0,
+                "categoria": "Casa",
+                "sottocategoria": "Affitto",
+                "conto_uscita": "Banca1",
+                "conto_entrata": "-",
+                "giorno_mese": 1,
+                "frequenza": "mensile"
+            }
+        ]
     },
     "Tea": {
         "conti": [

@@ -3,27 +3,31 @@ import pandas as pd
 import json
 import os
 
+from components.config_loader import load_user_config, FILE_CONFIG
+
 st.set_page_config(page_title="Impostazioni", layout='wide')
 
-# --- 1. SICUREZZA INIZIALE ---
 if 'utente' not in st.session_state:
     st.session_state['utente'] = "Ospite"
 
 utente_attivo = st.session_state['utente']
-FILE_CONFIG = "models/config.json"
 
-# --- 2. FUNZIONI DI LETTURA E SALVATAGGIO ---
 def load_config():
     if os.path.exists(FILE_CONFIG):
-        with open(FILE_CONFIG, 'r') as f:
-            return json.load(f)
+        try:
+            with open(FILE_CONFIG, 'r') as f:
+                return json.load(f)
+        except (json.JSONDecodeError, IOError):
+            return {}
     return {}
-    
-def save_config(aggiornati):
-    with open(FILE_CONFIG, 'w') as f:
-        json.dump(aggiornati, f, indent=4)
 
-# Carichiamo l'intero file JSON
+def save_config(aggiornati):
+    try:
+        with open(FILE_CONFIG, 'w') as f:
+            json.dump(aggiornati, f, indent=4)
+    except IOError as e:
+        st.error(f"Errore nel salvataggio: {e}")
+
 config = load_config()
 
 # Se l'utente attivo non esiste ancora nel JSON creiamo un template di base per lui
@@ -49,7 +53,7 @@ st.title(f"⚙️ Impostazioni Profilo: {utente_attivo}")
 st.write("Modifica i tuoi parametri. Le modifiche avranno effetto solo sul tuo profilo.")
 
 # Usiamo i tab per tenere la pagina ordinata
-tab_conti, tab_budget, tab_extra = st.tabs(["🏦 Conti & Saldi", "🎯 Budget Mensile", "🛠️ Preferenze Extra"])
+tab_conti, tab_budget, tab_extra, tab_ricorrenti = st.tabs(["🏦 Conti & Saldi", "🎯 Budget Mensile", "🛠️ Preferenze Extra", "🔄 Ricorrenti"])
 
 # TAB 1
 with tab_conti:
@@ -104,6 +108,25 @@ with tab_extra:
         lat = st.number_input("Latitudine Casa (Per la Mappa)", value=float(coords[0]), format="%.5f")
         lon = st.number_input("Longitudine Casa (Per la Mappa)", value=float(coords[1]), format="%.5f")
 
+# TAB 4 - Transazioni Ricorrenti
+with tab_ricorrenti:
+    st.subheader("Transazioni Ricorrenti")
+    st.write("Definisci entrate e uscite che si ripetono ogni mese. Saranno mostrate come promemoria nella Dashboard.")
+    
+    lista_ricorrenti = user_conf.get("transazioni_ricorrenti", [])
+    
+    if lista_ricorrenti:
+        df_ricorrenti = pd.DataFrame(lista_ricorrenti)
+        colonne_ordo = ["note", "valore", "categoria", "sottocategoria", "conto_uscita", "conto_entrata", "giorno_mese", "frequenza"]
+        for c in colonne_ordo:
+            if c not in df_ricorrenti.columns:
+                df_ricorrenti[c] = ""
+        df_ricorrenti = df_ricorrenti[colonne_ordo]
+    else:
+        df_ricorrenti = pd.DataFrame(columns=["note", "valore", "categoria", "sottocategoria", "conto_uscita", "conto_entrata", "giorno_mese", "frequenza"])
+    
+    edited_ricorrenti = st.data_editor(df_ricorrenti, num_rows="dynamic", use_container_width=True, key="edit_ricorrenti")
+
 st.divider()
 
 # --- 4. Tasto salvataggio
@@ -132,6 +155,30 @@ if st.button("💾 Salva Impostazioni nel Profilo", type="primary", use_containe
             except ValueError:
                 nuovo_budget[cat] = 0.0
 
+    nuove_ricorrenti = []
+    for index, row in edited_ricorrenti.iterrows():
+        note = str(row.get("note", "")).strip()
+        if note and note != "nan":
+            try:
+                valore = float(row.get("valore", 0))
+            except (ValueError, TypeError):
+                valore = 0.0
+            try:
+                giorno = int(float(row.get("giorno_mese", 1)))
+                giorno = max(1, min(28, giorno))
+            except (ValueError, TypeError):
+                giorno = 1
+            nuove_ricorrenti.append({
+                "note": note,
+                "valore": valore,
+                "categoria": str(row.get("categoria", "")).strip(),
+                "sottocategoria": str(row.get("sottocategoria", "-")).strip(),
+                "conto_uscita": str(row.get("conto_uscita", "-")).strip(),
+                "conto_entrata": str(row.get("conto_entrata", "-")).strip(),
+                "giorno_mese": giorno,
+                "frequenza": str(row.get("frequenza", "mensile")).strip()
+            })
+
     # 3. Aggiorniamo il dizionario dell'utente
     user_conf["conti"] = nuovi_conti
     user_conf["saldi iniziali"] = nuovi_saldi
@@ -143,6 +190,7 @@ if st.button("💾 Salva Impostazioni nel Profilo", type="primary", use_containe
         "valuta": valuta,
         "colore_tema": colore
     }
+    user_conf["transazioni_ricorrenti"] = nuove_ricorrenti
 
     # 4. Aggiorniamo l'intero file JSON
     config[utente_attivo] = user_conf

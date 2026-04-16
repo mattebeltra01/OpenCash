@@ -2,28 +2,29 @@ import streamlit as st
 import pandas as pd
 import plotly.express as px
 
+from components.config_loader import get_valuta, get_colore_tema, get_coordinate_home
+
 st.set_page_config(page_title="Mappa Spese", layout="wide")
 
-# --- CODICE DI SICUREZZA ---
-# Se l'utente apre direttamente questa pagina, inizializziamo 'utente' 
-# per evitare il KeyError
 if 'utente' not in st.session_state:
-    st.session_state['utente'] = "Ospite" 
+    st.session_state['utente'] = "Ospite"
 
 if 'df' not in st.session_state or st.session_state['df'] is None:
-    # Se i dati mancano, mostriamo un messaggio e fermiamo l'esecuzione
     st.warning("⚠️ Nessun dato caricato. Torna alla Home per caricare il tuo file CSV.")
     if st.button("Vai alla Home"):
-        st.switch_page("app.py") # Assicurati che il nome del file principale sia corretto
-    
+        st.switch_page("app.py")
     st.stop()
-# ---------------------------
 
-st.title(f"📊 Mappa delle Spese di {st.session_state['utente']}")
+utente_corrente = st.session_state['utente']
+valuta = get_valuta(utente_corrente)
+colore_tema = get_colore_tema(utente_corrente)
+coordinate_home = get_coordinate_home(utente_corrente)
+
+st.title(f"📊 Mappa delle Spese di {utente_corrente}")
 
 if 'df' in st.session_state:
     df = st.session_state['df'].copy()
-    
+
     df['Valore'] = pd.to_numeric(df['Valore'], errors='coerce').fillna(0)
 
     split_pos = df['Posizione'].str.split(' ', expand=True)
@@ -34,23 +35,22 @@ if 'df' in st.session_state:
     st.title("📍 Mappa Geografica delle Spese")
     st.write("Visualizza dove effettui i tuoi acquisti più frequenti.")
 
-    # Filtro per categoria sulla mappa
     cat_map = st.multiselect("Filtra per Categoria:", options=df['Categoria'].unique(), default=df['Categoria'].unique())
     df_map = df[df['Categoria'].isin(cat_map)]
 
-    # Creazione della mappa con Plotly
-    # NB: Richiede connessione internet per caricare i tile della mappa
     fig_map = px.scatter_mapbox(
-        df_map, 
-        lat="lat", 
-        lon="lon", 
-        size="Valore", 
+        df_map,
+        lat="lat",
+        lon="lon",
+        size="Valore",
         color="Categoria",
         hover_name="Note",
         hover_data={"Valore": True, "Sottocategoria": True, "lat": False, "lon": False},
-        zoom=12, 
+        zoom=12,
         height=600,
-        mapbox_style="carto-positron" # Stile pulito e chiaro
+        center={"lat": coordinate_home[0], "lon": coordinate_home[1]},
+        mapbox_style="carto-positron",
+        color_discrete_sequence=[colore_tema] + px.colors.qualitative.Set2
     )
 
     st.plotly_chart(fig_map, use_container_width=True)
