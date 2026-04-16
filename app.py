@@ -29,5 +29,6 @@ if uploaded_file is not None:
 if 'df' in st.session_state:
     st.write("Anteprima dati della sessione")
     st.dataframe(st.session_state['df'].head())
+    st.write("Hai caricato un file con", len(st.session_state['df']), "righe")
 else:
     st.info("Carica un file CSV prima di iniziare")
