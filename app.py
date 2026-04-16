@@ -14,8 +14,29 @@ st.set_page_config(
     layout="wide"
 )
 
+# Inizializziamo l'utente se non esiste
+if 'utente' not in st.session_state:
+    st.session_state['utente'] = "Matteo" # Default
+
+# Creiamo il selettore nella sidebar
+st.sidebar.markdown("---")
+st.sidebar.subheader("👤 Profilo Attivo")
+
+utente_scelto = st.sidebar.radio(
+    "Seleziona Utente:",
+    ["Matteo", "Tea"],
+    key = "utente",
+    horizontal=True
+)
+
+# Aggiorniamo lo stato se l'utente cambia
+if utente_scelto != st.session_state['utente']:
+    st.session_state['utente'] = utente_scelto
+    st.rerun() # Ricarica per aggiornare i testi in tutta la pagina
+
 st.title("OpenCash - NetWorth Tracker")
 st.write("Welcome to OpenCash. Use the sidebar to navigate.")
+st.write(f"Stai visualizzando i dati di: **{st.session_state['utente']}**")
 
 uploaded_file = st.file_uploader("Carica il tuo file CSV", type="csv")
 
