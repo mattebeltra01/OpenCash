@@ -24,11 +24,11 @@ CONTI = ["Banca1", "Banca2", "Banca3", "Contanti"]
 
 # ==========================================
 
-def genera_dataset(righe=100, file_output="data/NetWorth.csv"):
+def genera_dataset(righe=100, file_output="data/NetWorth_Matteo.csv"):
     records = []
     
     # Impostiamo una data di partenza
-    current_date = datetime(2026, 1, 1, 8, 30)
+    current_date = datetime(2020, 1, 1, 8, 30)
     
     # Teniamo traccia dei saldi per NON ANDARE IN ROSSO. 
     # Partiamo con un po' di fondi iniziali.

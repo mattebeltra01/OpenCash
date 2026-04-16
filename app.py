@@ -41,4 +41,8 @@ if uploaded_file is not None:
         st.session_state['utente'] = "Ospite"
         st.warning("File caricato, ma non ho riconosciuto il nome dell'utente nel file.")
 
+    st.write("Anteprima dati della sessione")
+    st.dataframe(st.session_state['df'].head())
+    st.write("Hai caricato un file con", len(st.session_state['df']), "righe")
+
 st.sidebar.info(f"Profilo Rilevato: **{st.session_state['utente']}**")
