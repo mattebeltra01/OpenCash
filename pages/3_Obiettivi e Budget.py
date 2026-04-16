@@ -2,6 +2,7 @@ import streamlit as st
 import pandas as pd
 import json
 import os
+import plotly.graph_objects as go
 
 st.set_page_config(page_title="Budgeting", layout="wide")
 
@@ -26,11 +27,94 @@ def load_user_config(utente):
 user_conf = load_user_config(st.session_state['utente'])
 budget_impostati = user_conf.get("budget", {})
 extra_conf = user_conf.get("extra", {})
-soglia_allerta = extra_conf.get("soglia_allerta_budget", 0.85) # Default 85%
+
+soglia_allerta = extra_conf.get("soglia_allerta_budget", 0.85)
+target_risparmio = extra_conf.get("obiettivo_risparmio", 0.0) 
 
 st.title(f"🎯 Obiettivi e Budget di {st.session_state['utente']}")
 
-# --- 3. PREPARAZIONE DATI E FILTRO MESI ---
+# --- 3. ANALISI SAVING RATE (ULTIMI 12 MESI) ---
+st.subheader("📈 Analisi Risparmio Mensile")
+
+# Creiamo una copia per non sporcare il dataframe originale
+df_full = st.session_state['df'].copy()
+
+# 1. PARSING DELLE DATE (Forziamo il formato europeo giorno/mese/anno)
+df_full['Data'] = pd.to_datetime(df_full['Data'], dayfirst=True, errors='coerce')
+
+df_full['Valore'] = pd.to_numeric(df_full['Valore'], errors='coerce').fillna(0)
+
+# Creiamo la colonna Mese_Anno saltando le date invalide (NaT)
+df_full = df_full.dropna(subset=['Data'])
+df_full['Mese_Anno'] = df_full['Data'].dt.strftime('%Y-%m')
+
+# 2. Raggruppamento Entrate e Uscite
+entrate_m = df_full[(df_full['Conto Uscita'] == '-') & (df_full['Conto Entrata'] != '-')].groupby('Mese_Anno')['Valore'].sum()
+uscite_m = df_full[(df_full['Conto Uscita'] != '-') & (df_full['Conto Entrata'] == '-')].groupby('Mese_Anno')['Valore'].sum()
+
+# 3. Creazione DataFrame Risparmio
+df_risparmio = pd.DataFrame({
+    'Entrate': entrate_m,
+    'Uscite': uscite_m
+}).fillna(0)
+
+# ---> OPZIONE NUCLEARE: Filtriamo via tutto ciò che viene prima del 2010 testualmente <---
+df_risparmio = df_risparmio[df_risparmio.index >= '2010-01']
+
+df_risparmio['Risparmio_Reale'] = df_risparmio['Entrate'] - df_risparmio['Uscite']
+
+# 4. FILTRO ULTIMI 12 MESI
+df_risparmio = df_risparmio.sort_index(ascending=True)
+df_risparmio = df_risparmio.tail(12)
+
+# DEBUG: Se vedi ancora problemi, de-commenta la riga qui sotto per vedere cosa c'è davvero nei dati
+# st.write(df_risparmio)
+
+# 5. VISUALIZZAZIONE GRAFICA
+if not df_risparmio.empty:
+    fig_saving = go.Figure()
+
+    colori = [
+        '#28A745' if val >= target_risparmio else '#FF4B4B' 
+        for val in df_risparmio['Risparmio_Reale']
+    ]
+
+    fig_saving.add_trace(go.Bar(
+        x=df_risparmio.index,
+        y=df_risparmio['Risparmio_Reale'],
+        marker_color=colori,
+        name="Risparmio Effettivo"
+    ))
+
+    fig_saving.add_shape(
+        type="line",
+        x0=-0.5, x1=len(df_risparmio)-0.5,
+        y0=target_risparmio, y1=target_risparmio,
+        line=dict(color="rgba(0,0,0,0.5)", width=2, dash="dash"),
+    )
+
+    fig_saving.update_layout(
+        height=350,
+        margin=dict(l=20, r=20, t=30, b=20),
+        xaxis_title="Mese",
+        yaxis_title="Risparmio Netto (€)",
+        showlegend=False,
+        xaxis=dict(type='category') # <--- LA MAGIA È QUI: forza le etichette testuali senza creare spazi vuoti
+    )
+
+    st.plotly_chart(fig_saving, use_container_width=True)
+    
+    c1, c2, c3 = st.columns(3)
+    media_risp = df_risparmio['Risparmio_Reale'].mean()
+    mesi_ok = sum(1 for v in df_risparmio['Risparmio_Reale'] if v >= target_risparmio)
+    
+    c1.metric("Media Risparmio (12m)", f"€ {media_risp:,.2f}")
+    c2.metric("Mesi Target Raggiunto", f"{mesi_ok} / {len(df_risparmio)}")
+    c3.metric("Obiettivo Mensile", f"€ {target_risparmio:,.0f}")
+else:
+    st.info("📊 Non ci sono abbastanza dati validi per mostrare lo storico del risparmio.")
+
+# --- 4. PREPARAZIONE DATI E FILTRO MESI ---
 df = st.session_state['df'].copy()
 df_uscite = df[(df['Conto Uscita'] != '-') & (df['Conto Entrata'] == '-')].copy()
 df_uscite['Valore'] = pd.to_numeric(df_uscite['Valore'], errors='coerce').fillna(0)
@@ -53,7 +137,7 @@ mese_selezionato = st.selectbox("📅 Seleziona il mese da analizzare:", mesi_di
 
 st.divider()
 
-# --- 4. CALCOLO E VISUALIZZAZIONE BUDGET ---
+# --- 5. CALCOLO E VISUALIZZAZIONE BUDGET ---
 st.subheader(f"Stato del Budget - {mese_selezionato}")
 
 # Filtriamo i dati solo per il mese selezionato
