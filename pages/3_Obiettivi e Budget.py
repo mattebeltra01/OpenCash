@@ -1,14 +1,22 @@
 import streamlit as st
 import pandas as pd
 
+st.set_page_config(page_title="Budgeting", layout="wide")
+
 # --- CODICE DI SICUREZZA ---
 # Se l'utente apre direttamente questa pagina, inizializziamo 'utente' 
 # per evitare il KeyError
 if 'utente' not in st.session_state:
-    st.session_state['utente'] = "Matteo" 
-# ---------------------------
+    st.session_state['utente'] = "Ospite" 
 
-st.set_page_config(page_title="Budgeting", layout="wide")
+if 'df' not in st.session_state or st.session_state['df'] is None:
+    # Se i dati mancano, mostriamo un messaggio e fermiamo l'esecuzione
+    st.warning("⚠️ Nessun dato caricato. Torna alla Home per caricare il tuo file CSV.")
+    if st.button("Vai alla Home"):
+        st.switch_page("app.py") # Assicurati che il nome del file principale sia corretto
+    
+    st.stop()
+# ---------------------------
 
 st.title(f"📊 Obiettivi e Budget di {st.session_state['utente']}")
 
