@@ -46,10 +46,6 @@ if uploaded_file is not None:
         st.session_state['utente'] = "Ospite"
         st.warning("File caricato, ma non ho riconosciuto il nome dell'utente nel file.")
 
-    st.write("Anteprima dati della sessione")
-    st.dataframe(st.session_state['df'].head())
-    st.write("Hai caricato un file con", len(st.session_state['df']), "righe")
-
     df_kpi = st.session_state['df'].copy()
     df_kpi['Valore'] = pd.to_numeric(df_kpi['Valore'], errors='coerce').fillna(0)
     df_kpi['Data'] = pd.to_datetime(df_kpi['Data'], utc=True, errors='coerce')
@@ -58,5 +54,9 @@ if uploaded_file is not None:
     spese_mese = df_kpi[(df_kpi['Conto Uscita'] != '-') & (df_kpi['Conto Entrata'] == '-') & (df_kpi['Data'] >= inizio_mese)]
     totale_spese_mese = spese_mese['Valore'].sum()
     st.metric(label=f"📉 Spese dal 1° {oggi.strftime('%B %Y')}", value=f"€ {totale_spese_mese:,.2f}")
+
+    st.write("Anteprima dati della sessione")
+    st.dataframe(st.session_state['df'].head())
+    st.write("Hai caricato un file con", len(st.session_state['df']), "righe")
 
 st.sidebar.info(f"Profilo Rilevato: **{st.session_state['utente']}**")
