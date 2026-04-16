@@ -28,7 +28,7 @@ def genera_dataset(righe=100, file_output="data/NetWorth_Matteo.csv"):
     records = []
     
     # Impostiamo una data di partenza
-    current_date = datetime(2020, 1, 1, 8, 30)
+    current_date = datetime(2025, 1, 1, 8, 30)
     
     # Teniamo traccia dei saldi per NON ANDARE IN ROSSO. 
     # Partiamo con un po' di fondi iniziali.
@@ -120,4 +120,4 @@ def genera_dataset(righe=100, file_output="data/NetWorth_Matteo.csv"):
 
 # Esegui lo script generando 150 righe fittizie
 if __name__ == "__main__":
-    genera_dataset(2000)
+    genera_dataset(150)
