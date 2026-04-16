@@ -17,8 +17,8 @@ if 'df' not in st.session_state or st.session_state['df'] is None:
 
 # --- 2. CARICAMENTO CONFIGURAZIONE DA JSON ---
 def load_user_config(utente):
-    if os.path.exists('settings.json'):
-        with open('settings.json', 'r') as f:
+    if os.path.exists('models/config.json'):
+        with open('models/config.json', 'r') as f:
             config = json.load(f)
             return config.get(utente, {})
     return {}
@@ -75,19 +75,43 @@ else:
             st.caption(f"Speso: € {reale:,.2f} / € {limite:,.2f}")
         
         with col_bar:
-            # Calcolo dinamico del colore in base alla soglia impostata in settings.json
-            if percentuale >= 1.0:
-                color = "red"
-            elif percentuale >= soglia_allerta:
-                color = "orange"
+            # 1. Calcolo percentuale per il CSS (max 100%)
+            percent_css = min(reale / limite * 100, 100) if limite > 0 else 0
+            
+            # 2. Logica colori dinamici
+            if reale >= limite:
+                color_hex = "#FF4B4B" # Rosso Streamlit
+            elif reale >= (limite * soglia_allerta):
+                color_hex = "#FFA500" # Arancione
             else:
-                color = "green"
+                color_hex = "#28A745" # Verde
             
-            st.progress(percentuale)
+            # 3. Creazione della barra HTML personalizzata
+            st.markdown(
+                f"""
+                <div style="
+                    background-color: #e0e0e0;
+                    border-radius: 10px;
+                    height: 20px;
+                    width: 100%;
+                    margin-top: 10px;
+                ">
+                    <div style="
+                        background-color: {color_hex};
+                        width: {percent_css}%;
+                        height: 20px;
+                        border-radius: 10px;
+                        transition: width 0.5s ease-in-out;
+                    ">
+                    </div>
+                </div>
+                """,
+                unsafe_allow_html=True
+            )
             
-            # Notifica in tempo reale se hai sforato (solo se stai guardando il mese corrente/ultimo mese)
+            # Messaggio di avviso sotto la barra se necessario
             if reale > limite and mese_selezionato == mesi_disponibili[0]:
-                st.toast(f"Hai superato il budget mensile per {cat}!", icon="⚠️")
+                st.caption(f"⚠️ Hai sforato di € {(reale - limite):,.2f}!")
 
 # Opzionale: Mostriamo le spese fuori budget (categorie in cui hai speso ma che non sono nel JSON)
 categorie_spese_non_a_budget = [c for c in spesa_reale.index if c not in budget_impostati.keys()]
