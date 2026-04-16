@@ -1,6 +1,6 @@
 import streamlit as st
 
-st.title("Assets")
+st.title("Impostazioni")
 
 if 'df' in st.session_state:
     df = st.session_state['df']

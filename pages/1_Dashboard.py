@@ -75,6 +75,45 @@ if 'df' in st.session_state:
         else:
             st.info("Dati insufficienti per i conti.")
 
+    # --- SEZIONE ANDAMENTO CONTI NEL TEMPO ---
+    st.subheader("📈 Andamento dei Conti")
+    
+    # 1. Assicuriamoci che la colonna 'Data' sia un formato data comprensibile a Pandas
+    df['Data'] = pd.to_datetime(df['Data'], utc=True)
+    
+    # 2. Creiamo una tabella con tutti i movimenti in USCITA (valori negativi)
+    df_out = df[df['Conto Uscita'] != '-'][['Data', 'Conto Uscita', 'Valore']].copy()
+    df_out = df_out.rename(columns={'Conto Uscita': 'Conto'})
+    df_out['Variazione'] = -df_out['Valore'] # Mettiamo il meno perché i soldi escono
+    
+    # 3. Creiamo una tabella con tutti i movimenti in ENTRATA (valori positivi)
+    df_in = df[df['Conto Entrata'] != '-'][['Data', 'Conto Entrata', 'Valore']].copy()
+    df_in = df_in.rename(columns={'Conto Entrata': 'Conto'})
+    df_in['Variazione'] = df_in['Valore'] # Positivo perché i soldi entrano
+    
+    # 4. Uniamo entrate e uscite e ordiniamo cronologicamente
+    df_movimenti = pd.concat([df_out, df_in]).sort_values('Data')
+    
+    # 5. Calcoliamo il saldo progressivo per ogni conto
+    df_movimenti['Saldo Progressivo'] = df_movimenti.groupby('Conto')['Variazione'].cumsum()
+    
+    # 6. Creiamo il grafico a linee con Plotly
+    if not df_movimenti.empty:
+        fig_andamento = px.line(
+            df_movimenti, 
+            x='Data', 
+            y='Saldo Progressivo', 
+            color='Conto',
+            markers=True, # Aggiunge i puntini su ogni transazione
+            labels={'Saldo Progressivo': 'Saldo Progressivo (€)', 'Data': 'Data Operazione'},
+            color_discrete_sequence=px.colors.qualitative.Pastel
+        )
+        st.plotly_chart(fig_andamento, use_container_width=True)
+    else:
+        st.info("Nessun movimento temporale da mostrare.")
+        
+    st.divider()
+
     # --- TABELLA ULTIME TRANSAZIONI ---
     st.subheader("📝 Ultime operazioni registrate")
     st.dataframe(df.head(10), use_container_width=True)

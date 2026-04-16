@@ -1,6 +1,6 @@
 import streamlit as st
 
-st.title("Settings")
+st.title("Ricerca e Correzione")
 
 if 'df' in st.session_state:
     df = st.session_state['df']

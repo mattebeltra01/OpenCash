@@ -1,12 +1,12 @@
 import streamlit as st
 
-st.title("Liabilities")
+st.title("Analisi Spese")
 
 if 'df' in st.session_state:
     df = st.session_state['df']
     
     st.write("File caricato")
-    
+
     if st.button("Vai alla Home"):
         st.switch_page("app.py")
 else:
