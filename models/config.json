@@ -1,0 +1,75 @@
+{
+  "Matteo": {
+    "conti": ["Banca1", "Banca2", "Banca3", "Contanti", "Investimento1", "Investimento2"],
+    "saldi iniziali": {
+        "Banca1": 2500.0,
+        "Banca2": 1200.0,
+        "Banca3": 500.0,
+        "Contanti": 50.0,
+        "Investimento1": 1000,
+        "Investimento2": 2000
+    },
+    "budget": {
+      "Casa": 800.0,
+      "Cibo": 400.0,
+      "Trasporti": 150.0,
+      "Svago": 200.0,
+      "Shopping": 150.0,
+      "Varie": 100.0
+    },
+    "extra": {
+      "obiettivo_risparmio": 500.0,
+      "soglia_allerta_budget": 0.85,
+      "coordinate_home": [44.9104, 10.6516],
+      "valuta": "€",
+      "colore_tema": "#1E88E5"
+    }
+  },
+  "Tea": {
+    "conti": ["Banca_Principale", "Satispay", "Risparmi", "Investimento1", "Investimento2"],
+    "budget": {
+      "Casa": 750.0,
+      "Cibo": 300.0,
+      "Trasporti": 100.0,
+      "Svago": 250.0,
+      "Shopping": 300.0,
+      "Varie": 150.0
+    },
+    "saldi iniziali": {
+        "Banca1": 2500.0,
+        "Banca2": 1200.0,
+        "Banca3": 500.0,
+        "Contanti": 50.0,
+        "Investimento1": 1000,
+        "Investimento2": 2000
+    },
+    "extra": {
+      "obiettivo_risparmio": 600.0,
+      "soglia_allerta_budget": 0.80,
+      "coordinate_home": [45.4642, 9.1900],
+      "valuta": "€",
+      "colore_tema": "#D81B60"
+    }
+  },
+  "Ospite": {
+    "conti": ["Banca_Principale", "Satispay", "Risparmi", "Investimento1", "Investimento2"],
+    "budget": {
+      "Generale": 500.0
+    },
+    "saldi iniziali": {
+        "Banca1": 2500.0,
+        "Banca2": 1200.0,
+        "Banca3": 500.0,
+        "Contanti": 50.0,
+        "Investimento1": 1000,
+        "Investimento2": 2000
+    },
+    "extra": {
+      "obiettivo_risparmio": 0.0,
+      "soglia_allerta_budget": 0.90,
+      "coordinate_home": [41.9028, 12.4964],
+      "valuta": "€",
+      "colore_tema": "#757575"
+    }
+  }
+}
