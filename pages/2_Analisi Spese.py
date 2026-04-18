@@ -1,6 +1,5 @@
 import streamlit as st
 import pandas as pd
-import plotly.express as px
 
 from components.config_loader import get_valuta, get_colore_tema
 
@@ -15,6 +14,8 @@ if 'df' not in st.session_state or st.session_state['df'] is None:
         st.switch_page("app.py")
     st.stop()
 
+import plotly.express as px
+
 utente_corrente = st.session_state['utente']
 valuta = get_valuta(utente_corrente)
 colore_tema = get_colore_tema(utente_corrente)
@@ -25,8 +26,6 @@ if 'df' in st.session_state:
     df = st.session_state['df'].copy()
 
     df_uscite = df[(df['Conto Uscita'] != '-') & (df['Conto Entrata'] == '-')].copy()
-    df_uscite['Valore'] = pd.to_numeric(df_uscite['Valore'], errors='coerce').fillna(0)
-    df_uscite['Data'] = pd.to_datetime(df_uscite['Data'], utc=True, errors='coerce')
 
     st.subheader("📅 Filtro Temporale")
 

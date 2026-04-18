@@ -1,6 +1,5 @@
 import streamlit as st
 import pandas as pd
-import plotly.express as px
 import json
 
 from components.config_loader import get_valuta, get_colore_tema, get_saldi_iniziali, load_user_config
@@ -16,6 +15,8 @@ if 'df' not in st.session_state or st.session_state['df'] is None:
         st.switch_page("app.py")
     st.stop()
 
+import plotly.express as px
+
 utente_corrente = st.session_state['utente']
 saldi_iniziali = get_saldi_iniziali(utente_corrente)
 valuta = get_valuta(utente_corrente)
@@ -25,7 +26,6 @@ st.title(f"📊 Dashboard di {utente_corrente}")
 
 if 'df' in st.session_state:
     df = st.session_state['df'].copy()
-    df['Valore'] = pd.to_numeric(df['Valore'], errors='coerce').fillna(0)
 
     df_entrate = df[(df['Conto Uscita'] == '-') & (df['Conto Entrata'] != '-')]
     df_uscite = df[(df['Conto Uscita'] != '-') & (df['Conto Entrata'] == '-')]
@@ -90,8 +90,6 @@ if 'df' in st.session_state:
 
     st.subheader("📈 Andamento dei Conti")
 
-    df['Data'] = pd.to_datetime(df['Data'], utc=True, errors='coerce')
-
     df_out = df[df['Conto Uscita'] != '-'][['Data', 'Conto Uscita', 'Valore']].copy()
     df_out = df_out.rename(columns={'Conto Uscita': 'Conto'})
     df_out['Variazione'] = -df_out['Valore']
@@ -123,7 +121,7 @@ if 'df' in st.session_state:
         st.subheader("🔄 Trasferimenti tra Conti")
         st.write("Movimenti di denaro tra i tuoi conti (non sono entrate né uscite).")
         df_tf_display = df_trasferimenti[['Data', 'Conto Uscita', 'Conto Entrata', 'Valore', 'Note']].copy()
-        df_tf_display['Data'] = pd.to_datetime(df_tf_display['Data'], utc=True, errors='coerce').dt.strftime('%d/%m/%Y')
+        df_tf_display['Data'] = df_tf_display['Data'].dt.strftime('%d/%m/%Y')
         tot_trasferimenti = df_trasferimenti['Valore'].sum()
         st.metric("Totale Transferiti", value=f"{valuta} {tot_trasferimenti:,.2f}")
         st.dataframe(df_tf_display.sort_values('Data', ascending=False), use_container_width=True)

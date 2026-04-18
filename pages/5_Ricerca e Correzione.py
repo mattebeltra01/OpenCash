@@ -34,7 +34,6 @@ if 'df' in st.session_state:
         filtro_conto = st.selectbox("Filtra per Conto:", ["Tutti"] + list(set(df['Conto Uscita'].unique()) | set(df['Conto Entrata'].unique())))
 
     with col3:
-        df['Valore'] = pd.to_numeric(df['Valore'], errors='coerce').fillna(0)
         v_min = float(df['Valore'].min())
         v_max = float(df['Valore'].max())
         if v_min == v_max:

@@ -2,7 +2,6 @@ import streamlit as st
 import pandas as pd
 import json
 import os
-import plotly.graph_objects as go
 
 from components.config_loader import load_user_config, get_valuta, get_colore_tema
 
@@ -16,6 +15,8 @@ if 'df' not in st.session_state or st.session_state['df'] is None:
     if st.button("Vai alla Home"):
         st.switch_page("app.py")
     st.stop()
+
+import plotly.graph_objects as go
 
 utente_corrente = st.session_state['utente']
 user_conf = load_user_config(utente_corrente)
@@ -32,8 +33,6 @@ st.title(f"🎯 Obiettivi e Budget di {utente_corrente}")
 st.subheader("📈 Analisi Risparmio Mensile")
 
 df_full = st.session_state['df'].copy()
-df_full['Data'] = pd.to_datetime(df_full['Data'], utc=True, errors='coerce')
-df_full['Valore'] = pd.to_numeric(df_full['Valore'], errors='coerce').fillna(0)
 
 df_full = df_full.dropna(subset=['Data'])
 df_full['Mese_Anno'] = df_full['Data'].dt.strftime('%Y-%m')
@@ -95,8 +94,6 @@ else:
 
 df = st.session_state['df'].copy()
 df_uscite = df[(df['Conto Uscita'] != '-') & (df['Conto Entrata'] == '-')].copy()
-df_uscite['Valore'] = pd.to_numeric(df_uscite['Valore'], errors='coerce').fillna(0)
-df_uscite['Data'] = pd.to_datetime(df_uscite['Data'], utc=True, errors='coerce')
 
 df_uscite['Mese_Anno'] = df_uscite['Data'].dt.strftime('%Y-%m')
 

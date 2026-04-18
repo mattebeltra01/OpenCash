@@ -3,7 +3,7 @@ import pandas as pd
 import json
 import os
 
-from components.config_loader import load_user_config, FILE_CONFIG
+from components.config_loader import load_user_config, FILE_CONFIG, clear_config_cache
 
 st.set_page_config(page_title="Impostazioni", layout='wide')
 
@@ -110,7 +110,6 @@ with tab_saldi_odierni:
             st.error("⚠️ Nessun file CSV caricato! Carica prima il file dalla Home.")
         else:
             df_calc = st.session_state['df'].copy()
-            df_calc['Valore'] = pd.to_numeric(df_calc['Valore'], errors='coerce').fillna(0)
 
             variazioni = {}
             for _, row in df_calc.iterrows():
@@ -286,6 +285,7 @@ if st.button("💾 Salva Impostazioni nel Profilo", type="primary", use_containe
     # 4. Aggiorniamo l'intero file JSON
     config[utente_attivo] = user_conf
     save_config(config)
+    clear_config_cache()
     
     # 5. Aggiorniamo la session_state così le altre pagine vedono le modifiche subito
     st.session_state['lista_conti'] = nuovi_conti
