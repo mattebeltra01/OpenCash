@@ -40,7 +40,6 @@ if utente_attivo not in config:
         "extra": {
             "obiettivo_risparmio": 100.0,
             "soglia_allerta_budget": 0.85,
-            "coordinate_home": [44.9104, 10.6516],
             "valuta": "€",
             "colore_tema": "#1f77b4"
         }
@@ -183,10 +182,6 @@ with tab_extra:
         
     with col2:
         colore = st.color_picker("Colore Tema Profilo", value=extra_conf.get("colore_tema", "#1f77b4"))
-        
-        coords = extra_conf.get("coordinate_home", [44.9104, 10.6516])
-        lat = st.number_input("Latitudine Casa (Per la Mappa)", value=float(coords[0]), format="%.5f")
-        lon = st.number_input("Longitudine Casa (Per la Mappa)", value=float(coords[1]), format="%.5f")
 
 # TAB 5 - Ricorrenti
 with tab_ricorrenti:
@@ -276,7 +271,6 @@ if st.button("💾 Salva Impostazioni nel Profilo", type="primary", use_containe
     user_conf["extra"] = {
         "obiettivo_risparmio": obiettivo,
         "soglia_allerta_budget": soglia,
-        "coordinate_home": [lat, lon],
         "valuta": valuta,
         "colore_tema": colore
     }

@@ -2,7 +2,7 @@ import streamlit as st
 import pandas as pd
 from datetime import datetime
 
-COLONNE_RICHIESTE = ["Data", "Posizione", "Valore", "Categoria", "Sottocategoria", "Note", "Conto Uscita", "Conto Entrata"]
+COLONNE_RICHIESTE = ["Data", "Valore", "Categoria", "Sottocategoria", "Note", "Conto Uscita", "Conto Entrata"]
 
 st.set_page_config(
     page_icon="💰",

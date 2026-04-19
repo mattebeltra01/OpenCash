@@ -39,11 +39,6 @@ def genera_dataset(righe=100, file_output="data/NetWorth_Matteo.csv"):
         current_date += timedelta(minutes=random.randint(60, 2880))
         data_str = current_date.strftime('%Y-%m-%dT%H:%M:%S+02:00')
         
-        # 2. Posizione: Randomizziamo leggermente attorno alle coordinate che hai fornito
-        lat = 44.910 + random.uniform(-0.005, 0.005)
-        lon = 10.651 + random.uniform(-0.005, 0.005)
-        posizione = f"{lat:.14f} {lon:.14f}"
-        
         # Scegliamo il tipo di transazione (60% Spesa, 30% Entrata, 10% Trasferimento)
         tipo_transazione = random.choices(['spesa', 'entrata', 'trasferimento'], weights=[60, 30, 10])[0]
         
@@ -78,7 +73,7 @@ def genera_dataset(righe=100, file_output="data/NetWorth_Matteo.csv"):
                 # Se non ha soldi, fingiamo un'entrata d'emergenza prima della spesa
                 saldi[conto_out] += 1000
                 records.append([
-                    data_str, posizione, 1000, "Altro", "-", "Ricarica automatica per fondi insufficienti", "-", conto_out
+                    data_str, 1000, "Altro", "-", "Ricarica automatica per fondi insufficienti", "-", conto_out
                 ])
                 # Avanziamo di un minuto per la spesa successiva
                 current_date += timedelta(minutes=1)
@@ -106,12 +101,12 @@ def genera_dataset(righe=100, file_output="data/NetWorth_Matteo.csv"):
 
         # Aggiungiamo la riga al nostro dataset
         records.append([
-            data_str, posizione, valore, cat, sub_cat, note, conto_out, conto_in
+            data_str, valore, cat, sub_cat, note, conto_out, conto_in
         ])
 
     # Creazione DataFrame e salvataggio CSV
     df = pd.DataFrame(records, columns=[
-        "Data", "Posizione", "Valore", "Categoria", "Sottocategoria", "Note", "Conto Uscita", "Conto Entrata"
+        "Data", "Valore", "Categoria", "Sottocategoria", "Note", "Conto Uscita", "Conto Entrata"
     ])
     
     df.to_csv(file_output, index=False)

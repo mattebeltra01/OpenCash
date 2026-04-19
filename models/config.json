@@ -28,10 +28,6 @@
         "extra": {
             "obiettivo_risparmio": 500.0,
             "soglia_allerta_budget": 0.85,
-            "coordinate_home": [
-                44.9104,
-                10.6516
-            ],
             "valuta": "\u20ac",
             "colore_tema": "#1E88E5"
         },
@@ -85,10 +81,6 @@
         "extra": {
             "obiettivo_risparmio": 800.0,
             "soglia_allerta_budget": 0.8,
-            "coordinate_home": [
-                0,
-                0
-            ],
             "valuta": "\u20ac",
             "colore_tema": "#D81B60"
         }
@@ -115,10 +107,6 @@
         "extra": {
             "obiettivo_risparmio": 0.0,
             "soglia_allerta_budget": 0.9,
-            "coordinate_home": [
-                41.9028,
-                12.4964
-            ],
             "valuta": "\u20ac",
             "colore_tema": "#757575"
         }

@@ -42,11 +42,6 @@ def get_colore_tema(utente):
     return conf.get("extra", {}).get("colore_tema", "#1f77b4")
 
 
-def get_coordinate_home(utente):
-    conf = load_user_config(utente)
-    return conf.get("extra", {}).get("coordinate_home", [44.9104, 10.6516])
-
-
 def get_saldi_iniziali(utente):
     conf = load_user_config(utente)
     return conf.get("saldi iniziali", {})
