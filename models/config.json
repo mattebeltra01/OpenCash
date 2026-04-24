@@ -54,21 +54,22 @@
             }
         ]
     },
-    "Tea": {
+    "Amanda": {
         "conti": [
-            "Banca_Principale",
+            "BancaPosta",
+            "TradeRepublic",
             "Satispay",
             "Risparmi",
             "Investimento1",
             "Investimento2"
         ],
         "budget": {
-            "Casa": 750.0,
-            "Cibo": 300.0,
-            "Trasporti": 100.0,
-            "Svago": 250.0,
-            "Shopping": 300.0,
-            "Varie": 150.0
+            "Casa": 0.0,
+            "Cibo": 0.0,
+            "Trasporti": 0.0,
+            "Svago": 0.0,
+            "Shopping": 0.0,
+            "Varie": 0.0
         },
         "saldi iniziali": {
             "Banca_Principale": 0,

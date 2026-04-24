@@ -36,8 +36,8 @@ if uploaded_file is not None:
     if "matteo" in nome_file:
         st.session_state['utente'] = "Matteo"
         st.success(f"Bentornato **Matteo**! File riconosciuto correttamente.")
-    elif "tea" in nome_file:
-        st.session_state['utente'] = "Tea"
+    elif "amanda" in nome_file:
+        st.session_state['utente'] = "Amanda"
         st.success(f"Bentornato **Tea**! File riconosciuto correttamente.")
     else:
         st.session_state['utente'] = "Ospite"
